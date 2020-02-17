@@ -10,10 +10,18 @@ var selectedSpot = "N/A";
 document.addEventListener("DOMContentLoaded", function(event){
     // addOrderDOM({'spot':2, 'name': 'John', 'pay-type': 'COF'})
     // addOrderDOM({'spot':1, 'name': 'Ellise', 'pay-type': 'DEBIT + Pts'}) 
+    // addOrderDOM({'spot':1, 'name': 'Ellise', 'pay-type': 'DEBIT + Pts'}) 
 
     $("#nextButton").click(function(){nextOrderDOM()})
     $("#addButton").click(function(){addOrderDialog()})
     $("#prevButton").click(function(){previousOrders()})
+
+    $('#add-note-button').click(function()
+    {
+        $('#notes-div').css('transform', 'translate(-100%, 0)')
+    })
+
+    $('#notes-div').focus(function(){$('#notes-div').css('transform', 'translate(100%,0)')})
 })
 
 function previousOrders()
@@ -34,7 +42,9 @@ function previousOrders()
         )
     )
 
-    prevOrders.forEach(order => {
+    for (i = prevOrders.length-1; i >= 0; i--)
+    {
+        order = prevOrders[i]
         $("#prevQueue").append(
             $("<div class='item'></div>")
             .append(
@@ -49,14 +59,14 @@ function previousOrders()
             .append(
                 $('<div class="hidden-stats" style="display:none"></div>')
                 .append(
-                    $('<p style="margin:5px">Time Elapsed:' + ((order['timeOfCompletion']-order['timeAdded'])/1000)+'</p>')
+                    $('<p style="margin:5px">Time Elapsed:' + order['timeElapsed']+'</p>')
                 )
             )
             .click(function(){
                 $(this).find('.hidden-stats').css('display', 'block')
             })
         )
-    });
+    }
 }
 
 function addOrderDialog()
@@ -121,6 +131,14 @@ function addOrderDialog()
                     $('.new-order-bg').remove()
                 })
             )
+        ).append(
+            $('<div class="exit-button">X</div>').click(
+                function (){
+                    $('.new-order-bg').remove()
+                }
+            )
+            .css('position', 'absolute')
+            
         )
         
     )
@@ -188,6 +206,7 @@ function nextOrderDOM()
     if (prevOrders.length > 0)
         $('#'+prevOrders[prevOrders.length-1]['id']).remove()
     orders[0]['timeOfCompletion'] = new Date()
+    orders[0]['timeElapsed'] = (orders[0]['timeOfCompletion']-orders[0]['timeAdded'])/1000
     prevOrders.push(orders[0])
     localStorage.setItem('PrevOrders', JSON.stringify(prevOrders))
     orders.shift()
